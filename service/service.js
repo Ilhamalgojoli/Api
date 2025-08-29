@@ -25,7 +25,7 @@ const sign_up = async (data) => {
 const sign_in = async (data) => {
     const { username, password } = data;
 
-    const [exists] = await database.query(`SELECT FROM users WHERE password = ?`, [username]);
+    const [exists] = await database.query(`SELECT FROM users WHERE username = ?`, [username]);
 
     if (exists.legth === 0) {
         return {

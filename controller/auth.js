@@ -12,7 +12,9 @@ exports.sign_up = async (req, res) => {
         const result = await service.sign_up(req.body);
 
         if(!result.success){
-            return res.status(400).json(result.message);
+            return res.status(400).json({
+                message: result.message
+            });
         }
 
         return res.status(201).json({
@@ -39,7 +41,9 @@ exports.sign_in = async (req, res) => {
         const result = await service.sign_in(req.body);
 
         if(!result.success){
-            return res.status(400).json(result.message);
+            return res.status(400).json({
+                message: result.message
+            });
         }
 
         return res.status(201).json({
