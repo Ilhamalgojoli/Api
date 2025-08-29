@@ -5,10 +5,11 @@ const app = express();
 
 const port = 3000;
 
-app.get("/", (req,res) => {
-    res.send("Hello World");
-})
+const router = require('./routes/route');
+
+app.use(express.json());
+app.use("/auth", router);
 
 app.listen(port, () => {
     console.log("Server is running on port 3000");
-})
+});
