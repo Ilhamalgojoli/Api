@@ -4,6 +4,13 @@ const database = require('../util/database');
 const sign_up = async (data) => {
     const { username, password } = data;
 
+    if(password.length < 6){
+        return {
+            success: false,
+            message: "Minimum password more than 6 character"
+        }
+    }
+
     const [exists] = await database.query(`SELECT * FROM users WHERE username = ?`, [username]);
 
     if (exists.length > 0) {
