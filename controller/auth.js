@@ -17,7 +17,7 @@ const sign_up = async (req, res) => {
             });
         }
 
-        return res.status(201).json({
+        return res.status(200).json({
             message: result.message
         });
 

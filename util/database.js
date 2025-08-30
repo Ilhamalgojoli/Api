@@ -12,11 +12,8 @@ const pool = new Pool({
 async function checkConnection(){
     try{
         const client = await pool.connect();
-        const resultTest = await client.query('SELECT * FROM users');
-        console.log("Success to connect database", resultTest);
+        console.log("Success to connect database");
         client.release();
-
-
     } catch (err){
         console.error("Error to connect database", err)
     }
