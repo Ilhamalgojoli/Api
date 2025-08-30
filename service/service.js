@@ -1,12 +1,12 @@
 const crypt = require('bcrypt');
-const database = require('../util/server');
+const database = require('../util/database');
 
 const sign_up = async (data) => {
     const { username, password } = data;
 
-    const [exists] = await database.query(`SELECT FROM users WHERE username = ?`, [username]);
+    const [exists] = await database.query(`SELECT * FROM users WHERE username = ?`, [username]);
 
-    if (exists.legth > 0) {
+    if (exists.length > 0) {
         return {
             success: false,
             message: "Username is already exists"
@@ -25,9 +25,9 @@ const sign_up = async (data) => {
 const sign_in = async (data) => {
     const { username, password } = data;
 
-    const [exists] = await database.query(`SELECT FROM users WHERE username = ?`, [username]);
+    const [exists] = await database.query(`SELECT * FROM users WHERE username = ?`, [username]);
 
-    if (exists.legth === 0) {
+    if (exists.length === 0) {
         return {
             success: false,
             message: "Password or username is incorrect"

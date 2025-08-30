@@ -1,6 +1,6 @@
 const service = require('../service/service');
 
-exports.sign_up = async (req, res) => {
+const sign_up = async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -28,7 +28,7 @@ exports.sign_up = async (req, res) => {
     }
 }
 
-exports.sign_in = async (req, res) => {
+const sign_in = async (req, res) => {
     try {
         const { username, password } = req.body ;
 
