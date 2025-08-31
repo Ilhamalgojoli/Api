@@ -1,4 +1,7 @@
-const service = require('../service/service');
+const service = require('../service/user_service');
+
+
+// Controller system for payload from user
 
 const sign_up = async (req, res) => {
     try {
@@ -47,7 +50,8 @@ const sign_in = async (req, res) => {
         }
 
         return res.status(201).json({
-            message: result.message
+            message: result.message,
+            Token : result.Token
         });
     } catch (err) {
         return res.status(500).json({
