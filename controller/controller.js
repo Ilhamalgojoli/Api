@@ -1,5 +1,6 @@
 const service = require('../service/user_service');
-
+const collection = require('../service/collection_service');
+const jwt = require('jsonwebtoken');
 
 // Controller system for payload from user
 
@@ -67,7 +68,7 @@ const sign_in = async (req, res) => {
 
 const addCollection = async (req, res) => {
     try {
-        const {title, image_path, movie_id} = req.body;
+        // Get token at cookie httpOnly
         const token = req.cookies.authcookie;
 
         if (!token) {
@@ -76,14 +77,34 @@ const addCollection = async (req, res) => {
             });
         }
 
-        const result = await addCollection(req.body);
+        // Decoded token to get user Id
+        const decoded = jwt.verify(req.cookies.authcookie, process.env.ACCESS_TOKEN);
+        const userId = decoded.id;
+
+        // Req body payload
+        const { title, poster_path, coll_id } = req.body ;
+        req.body.userId = userId ;
+
+        console.log(req.body);
+
+        // Call function from service and send parameter req.body
+        const result = await collection.addCollection(req.body);
+
+        if (!result){
+            return res.status(400).json({
+                success: false,
+                message: result.message,
+            })
+        }
 
         return res.status(201).json({
             message: result.message,
         });
     } catch (err) {
-        console.error("Internal server" + err);
-        throw new err;
+        return res.status(500).json({
+            success:false,
+            message: `Internal server ${err}`
+        }, err)
     }
 }
 

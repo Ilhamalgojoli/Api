@@ -1,30 +1,43 @@
 const database = require('../util/database');
-var session = require('express-session');
 
 const addCollection = async (data) => {
-    const {title, poster_path, movie_id} = data
-    const userId = req.session.user_id;
-
     try {
+        const { title, poster_path, coll_id, userId } = data;
+
+        // Query to send data
         const req_coll = await database.query(
             `INSERT INTO my_collection (name, path, id_coll, user_id)
-             VALUES ($1, $2, $3, $4)`,
-            [title, poster_path, movie_id, userId]
+             VALUES ($1, $2, $3, $4) RETURNING *`,
+            [title, poster_path, coll_id, userId]
         );
 
-        if (!req_coll) {
+        console.log("Nama: " + title);
+        console.log("Poster: " + poster_path);
+        console.log("Id: " + coll_id);
+        console.log("User id: " + userId);
+
+        if (req_coll.rowCount === 0) {
             return ({
                 success: false,
-                message: "Failed to add collection"
+                message: "Bad request"
             });
         }
-    } catch (err) {
-        console.error(err);
-        throw new err;
-    }
 
-    return ({
-        success: true,
-        message: "Success add collection"
-    });
+        console.log({title, poster_path, coll_id, userId});
+        console.log(data);
+
+        return ({
+            success: true,
+            message: "Success add collection"
+        });
+    } catch (err) {
+        return ({
+            success: false,
+            message: err
+        },err);
+    }
+}
+
+module.exports = {
+    addCollection
 }

@@ -93,7 +93,7 @@ const sign_in = async (data) => {
         };
     }
 
-    const jwtToken = generateToken({username});
+    const jwtToken = generateToken({id: user.id, username: user.username});
     console.log("Username " + {username} + user.username);
 
     try {
@@ -102,6 +102,12 @@ const sign_in = async (data) => {
              VALUES ($1, $2, $3)`,
             [jwtToken, new Date(Date.now() + 900000), user.id]
         );
+
+        return ({
+            success: true,
+            message: "User signed in successfully",
+            Token: jwtToken
+        });
     } catch (err) {
         console.error("Internal server error " + err);
         throw new err;
@@ -109,15 +115,15 @@ const sign_in = async (data) => {
 
     // Debug for solve problem Internal server
     console.log("hasil jwt token " + jwtToken);
-    return ({
-        success: true,
-        message: "User signed in successfully",
-        Token: jwtToken
-    });
+
 };
 
-function generateToken(username) {
-    return jwt.sign(username, token);
+function generateToken(user) {
+    return jwt.sign(
+        {id: user.id, user: user.username},
+        token,
+        {expiresIn: '1800s'}
+    );
 }
 
 module.exports = {
