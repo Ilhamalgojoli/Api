@@ -5,7 +5,7 @@ const addCollection = async (data) => {
         const { title, poster_path, coll_id, userId } = data;
 
         // Query to send data
-        const req_coll = await database.query(
+        const result = await database.query(
             `INSERT INTO my_collection (name, path, id_coll, user_id)
              VALUES ($1, $2, $3, $4) RETURNING *`,
             [title, poster_path, coll_id, userId]
@@ -16,7 +16,7 @@ const addCollection = async (data) => {
         console.log("Id: " + coll_id);
         console.log("User id: " + userId);
 
-        if (req_coll.rowCount === 0) {
+        if ( result.rowCount === 0 ) {
             return ({
                 success: false,
                 message: "Bad request"
@@ -34,10 +34,40 @@ const addCollection = async (data) => {
         return ({
             success: false,
             message: err
-        },err);
+        });
+    }
+}
+
+const getCollection = async(data) => {
+    try {
+        // Get body request from controller
+        const { userId } = data
+
+        const result = await database.query(
+            `SELECT name, path, id_coll FROM my_collection WHERE user_id = $1`,
+            [userId]
+        );
+
+        if ( result.rowCount === 0 ) {
+            return({
+                success: false,
+                message: 'No collection'
+            });
+        }
+
+        return({
+            success: true,
+            message: 'Success get collection'
+        });
+    } catch (err){
+        return({
+            success: false,
+            message: err
+        });
     }
 }
 
 module.exports = {
-    addCollection
+    addCollection,
+    getCollection
 }

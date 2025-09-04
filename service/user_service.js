@@ -118,6 +118,14 @@ const sign_in = async (data) => {
 
 };
 
+const profile = async(data) => {
+    try {
+        const { path_profile, image } = data ;
+    } catch (err){
+
+    }
+}
+
 function generateToken(user) {
     return jwt.sign(
         {id: user.id, user: user.username},
