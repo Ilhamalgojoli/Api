@@ -2,18 +2,16 @@ const database = require('../util/database');
 
 const addCollection = async (data) => {
     try {
-        const { title, poster_path, coll_id, userId } = data;
+        const { id_coll, userId } = data;
 
         // Query to send data
         const result = await database.query(
-            `INSERT INTO my_collection (name, path, id_coll, user_id)
+            `INSERT INTO my_collection (id_coll, user_id)
              VALUES ($1, $2, $3, $4) RETURNING *`,
-            [title, poster_path, coll_id, userId]
+            [id_coll, userId]
         );
 
-        console.log("Nama: " + title);
-        console.log("Poster: " + poster_path);
-        console.log("Id: " + coll_id);
+        console.log("Id: " + id_coll);
         console.log("User id: " + userId);
 
         if ( result.rowCount === 0 ) {
@@ -23,7 +21,7 @@ const addCollection = async (data) => {
             });
         }
 
-        console.log({title, poster_path, coll_id, userId});
+        console.log({ id_coll, userId });
         console.log(data);
 
         return ({
@@ -44,7 +42,7 @@ const getCollection = async(data) => {
         const { userId } = data
 
         const result = await database.query(
-            `SELECT name, path, id_coll FROM my_collection WHERE user_id = $1`,
+            `SELECT id_coll FROM my_collection WHERE user_id = $1`,
             [userId]
         );
 

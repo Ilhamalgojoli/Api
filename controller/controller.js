@@ -4,10 +4,11 @@ const jwt = require('jsonwebtoken');
 const http = require("node:http");
 
 // Controller system for payload from user
+// Sign-Up Controller
 
 const sign_up = async (req, res) => {
     try {
-        const {username, password} = req.body;
+        const { username, password } = req.body;
 
         if (!username || !password) {
             return res.status(400).json({
@@ -37,6 +38,8 @@ const sign_up = async (req, res) => {
         }, err);
     }
 }
+
+// Sign-in Controller
 
 const sign_in = async (req, res) => {
     try {
@@ -71,6 +74,8 @@ const sign_in = async (req, res) => {
     }
 }
 
+// Logout controller
+
 const logout = async (req, res) => {
     try{
         req.clearCookie('authcookie', { httpOnly: true, secure: true});
@@ -85,6 +90,32 @@ const logout = async (req, res) => {
         });
     }
 }
+
+const getToken = (req, res) => {
+    try {
+        const token = req.cookies.authcookie ;
+
+        if (!token || token === ""){
+            return res.status(401).json({
+               success: false,
+               message: "Unathorized, Please Sign-In"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: ""
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: err
+        });
+    }
+}
+
+// Add Collection Controller
 
 const addCollection = async (req, res) => {
     try {
@@ -102,7 +133,7 @@ const addCollection = async (req, res) => {
         const userId = decoded.id;
 
         // Req body payload
-        const {title, poster_path, coll_id} = req.body;
+        const { id_coll } = req.body;
         req.body.userId = userId;
 
         console.log(req.body);
@@ -129,9 +160,12 @@ const addCollection = async (req, res) => {
     }
 }
 
+// Get Collection Controller
+
 const getCollection = async (req, res) => {
     try {
         const token = req.cookies.authcookie ;
+
         if (!token){
             return res.status(400).json({
                 success: false,
@@ -170,6 +204,7 @@ module.exports = {
     sign_up,
     sign_in,
     logout,
+    getToken,
     addCollection,
     getCollection
 }

@@ -46,12 +46,6 @@ const sign_up = async (data) => {
     const userId = result.rows[0].id;
     const tokenJwt = generateToken({username});
 
-    // Create session token to database
-    await database.query(`INSERT INTO tokens (token, expired_at, userId)
-                          VALUES ($1, $2, $3)`,
-        [tokenJwt, new Date(Date.now() + 900000), userId]
-    );
-
     return ({
         success: true,
         message: "User created successfully",
@@ -96,32 +90,21 @@ const sign_in = async (data) => {
     const jwtToken = generateToken({id: user.id, username: user.username});
     console.log("Username " + {username} + user.username);
 
-    try {
-        await database.query(
-            `INSERT INTO tokens (token, expired_at, user_id)
-             VALUES ($1, $2, $3)`,
-            [jwtToken, new Date(Date.now() + 900000), user.id]
-        );
-
-        return ({
-            success: true,
-            message: "User signed in successfully",
-            Token: jwtToken
-        });
-    } catch (err) {
-        console.error("Internal server error " + err);
-        throw new err;
-    }
+    return ({
+        success: true,
+        message: "User signed in successfully",
+        Token: jwtToken
+    });
 
     // Debug for solve problem Internal server
     console.log("hasil jwt token " + jwtToken);
 
 };
 
-const profile = async(data) => {
+const profile = async (data) => {
     try {
-        const { path_profile, image } = data ;
-    } catch (err){
+        const {path_profile, image} = data;
+    } catch (err) {
 
     }
 }
