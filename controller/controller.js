@@ -1,28 +1,30 @@
 const service = require('../service/user_service');
 const collection = require('../service/collection_service');
+const profile = require("../service/profile_service");
 const jwt = require('jsonwebtoken');
 const http = require("node:http");
+const {decode} = require("jsonwebtoken");
 
 // Controller system for payload from user
 // Sign-Up Controller
 
 const sign_up = async (req, res) => {
+    console.log("Payload yang di terima : ", req.body);
     try {
         const { username, password } = req.body;
 
-        if (!username || !password) {
-            return res.status(400).json({
-                success: false,
-                message: "Please provide username and password"
-            });
-        }
         const result = await service.sign_up(req.body);
 
         if (!result.success) {
-            return res.status(400).json({
+            console.log("Register failed");
+            return res.status(409).json({
                 success: result.success,
                 message: result.message
             });
+        }
+
+        if (result.success){
+            console.log("Register berhasil");
         }
 
         res.cookie('authcookie', result.Token, {maxAge: 900000, httpOnly: true});
@@ -34,83 +36,159 @@ const sign_up = async (req, res) => {
 
     } catch (err) {
         return res.status(500).json({
+            success: false,
             message: `Internal server error ${err}`,
-        }, err);
+        });
     }
 }
 
 // Sign-in Controller
 
 const sign_in = async (req, res) => {
+    console.log("Payload diterima dari frontend", req.body);
     try {
-        const {username, password} = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({
-                message: "Please provide username and password"
-            });
-        }
+        const { username, password } = req.body;
 
         const result = await service.sign_in(req.body);
 
         if (!result.success) {
-            return res.status(400).json({
+            return res.status(409).json({
+                success: result.success,
                 message: result.message
             });
         }
 
-        res.cookie('authcookie', result.Token, {maxAge: 900000, httpOnly: true, secure: true});
+        if (result){
+            console.log("Login berhasil");
+        }
+
+        res.cookie('authcookie', result.Token, {
+            maxAge: 900000,
+            httpOnly: true, secure: true
+        });
 
         return res.status(201).json({
             status: "Ok",
             success: result.success,
-            message: result.message,
-            Token: result.Token
+            message: result.message
         });
     } catch (err) {
         return res.status(500).json({
+            success: false,
             message: `Internal server error ${err}`,
-        }, err);
+        });
     }
 }
 
 // Logout controller
 
-const logout = async (req, res) => {
+const logout = (req, res) => {
     try{
-        req.clearCookie('authcookie', { httpOnly: true, secure: true});
+        res.clearCookie('authcookie', { httpOnly: true, secure: true});
+
         return res.status(200).json({
             success: true,
-            message: "Success to logout"
+            message: "Success to logout 😭"
         });
     } catch (err){
         return res.status(500).json({
             success: false,
-            message: err
+            message: `Internal server down : ${err}`
         });
     }
 }
 
-const getToken = (req, res) => {
+const postProfile = async(req, res) => {
     try {
-        const token = req.cookies.authcookie ;
+        const token = req.cookies.authcookie;
 
-        if (!token || token === ""){
+        if(!token){
             return res.status(401).json({
-               success: false,
-               message: "Unathorized, Please Sign-In"
+                success: false,
+                message: "Unathorized"
+            });
+        }
+
+        const { pathImage,image } = req.body;
+        const decoded = jwt.decode(res.cookies.authcookie, process.env.ACCESS_TOKEN);
+        req.body = decoded.id ;
+
+        const result = await profile.postProfile(req.body);
+
+        if(!result){
+            return res.status(400).json({
+                success: result.success,
+                message: result.message
             });
         }
 
         return res.status(200).json({
             success: true,
-            message: ""
+            message: result.message
         });
-
-    } catch (err) {
+    } catch(err){
         return res.status(500).json({
             success: false,
-            message: err
+            message: "Internal server down"
+        });
+    }
+}
+
+const getProfile = async(req, res) => {
+    try {
+        const token = req.cookies.authcookie;
+
+        if(!token){
+            return res.status(401).json({
+                success: false,
+                message: "Unathorized"
+            });
+        }
+
+        const decoded = jwt.decode(res.cookies.authcookie, process.env.ACCESS_TOKEN);
+        req.body = decoded.id ;
+
+        const result = await profile.getProfile(req.body);
+        console.log("data ? : " + res.query);
+
+        if(!result){
+            return res.status(404).json({
+                success: result.success,
+                message: result.message
+            });
+        }
+
+        return res.status(200).json({
+            success: result.success,
+            message: result.message,
+        });
+    } catch (err){
+        return res.status(500).json({
+            success: false,
+            message: res.message
+        });
+    }
+}
+
+const getToken = async (req, res) => {
+    try {
+        const token = req.cookies.authcookie ;
+
+        if (!token || token === "" || token === null){
+            return res.status(401).json({
+                success: false,
+                message: "Unathorized"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Credentials valid",
+            token: token
+        });
+    } catch (e){
+        return res.status(500).json({
+            message: "Internal server error"
         });
     }
 }
@@ -206,5 +284,7 @@ module.exports = {
     logout,
     getToken,
     addCollection,
-    getCollection
+    getCollection,
+    getProfile,
+    postProfile
 }

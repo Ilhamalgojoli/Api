@@ -9,6 +9,13 @@ const sign_up = async (data) => {
     // Payload req body from controller
     const {username, password} = data;
 
+    if (!username || !password){
+        return {
+            success: false,
+            message: "Please provide username and password"
+        }
+    }
+
     // Check password have character < 6
     if (password.length < 6) {
         return {
@@ -18,6 +25,7 @@ const sign_up = async (data) => {
     }
 
     // if password have more 6 character,system next prosess to query and check the username
+
     try {
         const exists = await database.query(`SELECT *
                                              FROM users
@@ -58,6 +66,13 @@ const sign_in = async (data) => {
 
     const {username, password} = data;
 
+    if (!username || !password){
+        return {
+            success: false,
+            message: "Please provide username and password"
+        }
+    }
+
     // Query to take data user with spesific username
     const rowUser = await database.query(`SELECT *
                                           FROM users
@@ -65,10 +80,11 @@ const sign_in = async (data) => {
 
     // If data user is not match,then make sure that username is correct, cause when the check,system check the username
     if (rowUser.rows.length === 0) {
+        console.log("Username is incorrect");
         return {
             success: false,
             message: "Username is incorrect"
-        };
+        }
     }
 
     const user = rowUser.rows[0];
@@ -88,7 +104,7 @@ const sign_in = async (data) => {
     }
 
     const jwtToken = generateToken({id: user.id, username: user.username});
-    console.log("Username " + {username} + user.username);
+    console.log("Username " + user.username);
 
     return ({
         success: true,
@@ -100,14 +116,6 @@ const sign_in = async (data) => {
     console.log("hasil jwt token " + jwtToken);
 
 };
-
-const profile = async (data) => {
-    try {
-        const {path_profile, image} = data;
-    } catch (err) {
-
-    }
-}
 
 function generateToken(user) {
     return jwt.sign(
